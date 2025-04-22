@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8">
+    <title>Clientes</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+</head>
+
+<body class="p-4">
+    <div class="container">
+        <h1 class="mb-4">📋 Gestión de Clientes</h1>
+        <div class="row">
+            <!-- Crear Cliente -->
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <div class="card-header">Crear Cliente</div>
+                    <div class="card-body">
+                        <form action="/clientes" method="POST">
+                            <div class="form-group">
+                                <label for="nombre">Nombre</label>
+                                <input type="text" class="form-control" id="nombre" name="nombre" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="edad">Edad</label>
+                                <input type="number" class="form-control" id="edad" name="edad" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="correo">Correo</label>
+                                <input type="email" class="form-control" id="correo" name="correo" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="ciudad">Ciudad</label>
+                                <input type="text" class="form-control" id="ciudad" name="ciudad" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Crear Cliente</button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Formulario de actualización dinámico -->
+                <div class="card mb-4" id="update-card" style="display: none;">
+                    <div class="card-header">Actualizar Cliente</div>
+                    <div class="card-body">
+                        <form id="form-actualizar" action="/clientes/actualizar" method="POST">
+                            <input type="hidden" name="id" id="update-id">
+                            <div class="form-group">
+                                <label for="update-nombre">Nombre</label>
+                                <input type="text" class="form-control" id="update-nombre" name="nombre" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="update-edad">Edad</label>
+                                <input type="number" class="form-control" id="update-edad" name="edad" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="update-correo">Correo</label>
+                                <input type="email" class="form-control" id="update-correo" name="correo" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="update-ciudad">Ciudad</label>
+                                <input type="text" class="form-control" id="update-ciudad" name="ciudad" required>
+                            </div>
+                            <button type="submit" class="btn btn-warning">Guardar Cambios</button>
+                            <button type="button" class="btn btn-secondary"
+                                onclick="cancelarActualizacion()">Cancelar</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabla de Clientes -->
+            <div class="col-md-6">
+                <h2 class="mb-3">Clientes Existentes</h2>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Edad</th>
+                            <th>Correo</th>
+                            <th>Ciudad</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% clientes.forEach(cliente=> { %>
+                            <tr>
+                                <td>
+                                    <%= cliente.nombre %>
+                                </td>
+                                <td>
+                                    <%= cliente.edad %>
+                                </td>
+                                <td>
+                                    <%= cliente.correo %>
+                                </td>
+                                <td>
+                                    <%= cliente.ciudad %>
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-warning"
+                                        onclick="editarCliente(<%= cliente.id %>, '<%= cliente.nombre %>', <%= cliente.edad %>, '<%= cliente.correo %>', '<%= cliente.ciudad %>')">Editar</button>
+                                    <form action="/clientes/eliminar" method="POST" style="display:inline;">
+                                        <input type="hidden" name="id" value="<%= cliente.id %>">
+                                        <button type="submit" class="btn btn-sm btn-danger">Eliminar</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            <% }) %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Sección de Clientes mayores de 30 años -->
+        <div class="list-group-item">
+            <% clientes.forEach(cliente=> { %>
+                <% if (cliente.edad> 30) { %>
+                    <h2>Mayores de 30 Años</h2>
+                    <li><strong>
+                            <%= cliente.nombre %>
+                        </strong> - <%= cliente.correo %>
+                    </li>
+                    <% } %>
+                        <% }) %>
+        </div> <br>
+
+        <!-- Sección Acciones masivas y específicas -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <div class="card-header">Actualizar Ciudad (uno)</div>
+                    <div class="card-body">
+                        <form action="/clientes/actualizarCiudadUno" method="POST" class="form-inline">
+                            <input type="text" name="nombre" class="form-control mr-2" placeholder="Nombre cliente"
+                                required>
+                            <input type="text" name="nuevaCiudad" class="form-control mr-2" placeholder="Nueva Ciudad"
+                                required>
+                            <button type="submit" class="btn btn-primary">Actualizar</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <div class="card-header">Eliminar Cliente por Nombre</div>
+                    <div class="card-body">
+                        <form action="/clientes/eliminarUno" method="POST" class="form-inline">
+                            <input type="text" name="nombre" class="form-control mr-2" placeholder="Nombre cliente"
+                                required>
+                            <button type="submit" class="btn btn-danger">Eliminar</button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="card mb-4">
+                    <div class="card-header">Eliminar Clientes por Ciudad</div>
+                    <div class="card-body">
+                        <form action="/clientes/eliminarCiudad" method="POST" class="form-inline">
+                            <input type="text" name="ciudad" class="form-control mr-2" placeholder="Ciudad" required>
+                            <button type="submit" class="btn btn-danger">Eliminar Masivo</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function editarCliente(id, nombre, edad, correo, ciudad) {
+            // Mostrar formulario de actualización
+            document.getElementById('update-card').style.display = 'block';
+            // Llenar campos
+            document.getElementById('update-id').value = id;
+            document.getElementById('update-nombre').value = nombre;
+            document.getElementById('update-edad').value = edad;
+            document.getElementById('update-correo').value = correo;
+            document.getElementById('update-ciudad').value = ciudad;
+            // Scroll hacia el formulario
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        function cancelarActualizacion() {
+            document.getElementById('update-card').style.display = 'none';
+            document.getElementById('form-actualizar').reset();
+        }
+    </script>
+</body>
+
+</html>
